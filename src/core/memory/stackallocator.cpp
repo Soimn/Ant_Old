@@ -1,4 +1,4 @@
-#include "StackAllocator.h"
+#include "stackallocator.h"
 
 
 namespace Ant {
@@ -25,7 +25,7 @@ Block StackAllocator<PAGE_SIZE>::allocate (size_t _size, byte _alignment) {
     Block blk{nullptr, 0, 0};
     size_t prev_remaining_space = remaining_space;
 
-    if (eastl::align(_alignment, _size, stack_ptr, remaining_space) != nullptr) {
+    if (align_std(_alignment, _size, stack_ptr, remaining_space) != nullptr) {
         blk = {stack_ptr, _size, static_cast<byte>(prev_remaining_space - remaining_space)};
         stack_ptr = reinterpret_cast<byte*>(stack_ptr) + _size;
         remaining_space -= _size;
@@ -35,7 +35,7 @@ Block StackAllocator<PAGE_SIZE>::allocate (size_t _size, byte _alignment) {
 }
 
 template<size_t PAGE_SIZE>
-void StackAllocator<PAGE_SIZE>::deallocate (Block& blk) {
+void StackAllocator<PAGE_SIZE>::deallocate (Block&& blk) {
     if (reinterpret_cast<byte*>(blk.ptr) + blk.size == stack_ptr) {
         stack_ptr = reinterpret_cast<byte*>(stack_ptr) - (blk.adjustment + blk.size);
         remaining_space += blk.size + blk.adjustment;

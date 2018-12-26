@@ -17,10 +17,7 @@ set(CML "CMakeLists.txt")
 set(PUBLIC_HEADS "${PUBLIC_I}/ant.h")
 set(PUBLIC_CORE_HEADS "${SRC}/core/dll_definitions.h")
 
-option(ANT_USE_COTIRE "Use cotire to speed up build" ON)
-
-
-add_library(${TARGET} SHARED "")
+add_library(${TARGET} SHARED "${SRC}/core/common.h")
 
 set_target_properties(${TARGET} PROPERTIES
 	VERSION ${PROJECT_VERSION}
@@ -89,10 +86,7 @@ else()
 endif()
 
 # EXTERNAL LIBS
-
 target_link_libraries(${TARGET} LINK_PRIVATE EASTL)
-
-find_package(PkgConfig REQUIRED)
 
 find_package(GLEW REQUIRED)
 if (GLEW_FOUND)
@@ -102,8 +96,8 @@ else()
 	message(FATAL_ERROR "Glew not found")
 endif()
 
-pkg_search_module(GLFW REQUIRED glfw3)
-if (GLFW_FOUND)
+find_package(glfw3 3.2 REQUIRED)
+if (glfw3_FOUND)
 	target_include_directories(${TARGET} PRIVATE ${GLFW_INCLUDE_DIRS})
 	target_link_libraries(${TARGET} LINK_PRIVATE ${GLFW_LIBRARIES})
 else()
@@ -127,8 +121,3 @@ install(FILES ${TARGET}-config.cmake DESTINATION lib)
 install(EXPORT ${TARGET} DESTINATION lib)
 
 include("${SRC}/CMakeLists.txt")
-
-if (ANT_USE_COTIRE)
-	include("${CMAKE_CURRENT_LIST_DIR}/cotire.vim")
-	cotire(${TARGET})
-endif()

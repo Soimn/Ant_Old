@@ -1,6 +1,17 @@
 target_sources(${TARGET}
 	PRIVATE
-		"${CMAKE_CURRENT_LIST_DIR}/Block.h"
-		"${CMAKE_CURRENT_LIST_DIR}/StackAllocator.h"
-		"${CMAKE_CURRENT_LIST_DIR}/StackAllocator.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/block.h"
+		"${CMAKE_CURRENT_LIST_DIR}/stackallocator.h"
+		"${CMAKE_CURRENT_LIST_DIR}/stackallocator.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/poolallocator.h"
+		"${CMAKE_CURRENT_LIST_DIR}/poolallocator.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/fallbackallocator.h"
+		"${CMAKE_CURRENT_LIST_DIR}/fallbackallocator.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/segregator.h"
+		"${CMAKE_CURRENT_LIST_DIR}/segregator.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/mallocator.h"
+		"${CMAKE_CURRENT_LIST_DIR}/mallocator.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/allocators.h"
+		"${CMAKE_CURRENT_LIST_DIR}/shared_ptr.h"
+		"${CMAKE_CURRENT_LIST_DIR}/unique_ptr.h"
 )

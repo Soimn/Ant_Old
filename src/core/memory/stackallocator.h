@@ -1,6 +1,7 @@
 #pragma once
 #include "core/common.h"
-#include "Block.h"
+#include "core/utility/utility.h"
+#include "block.h"
 
 namespace Ant {
 namespace core {
@@ -28,7 +29,7 @@ struct StackAllocator {
         inline size_t get_space () const;
 
         Block allocate (size_t size, byte alignment);
-        void deallocate (Block& blk);
+        void deallocate (Block&& blk);
         void deallocateAll ();
 };
 
