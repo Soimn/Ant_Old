@@ -487,6 +487,39 @@ struct __is_convertible_impl<From, To, false> {
 template<typename From, typename To>
 struct is_convertible : public __is_convertible_impl<From, To>::type {};
 
+// is_integral & is_*signed
+
+template<typename T> struct __is_integral_helper;
+template<typename T> struct __is_integral_helper           : public false_type {};
+template<> struct __is_integral_helper<bool>               : public true_type  {};
+template<> struct __is_integral_helper<wchar_t>            : public true_type  {};
+template<> struct __is_integral_helper<char16_t>           : public true_type  {};
+template<> struct __is_integral_helper<char32_t>           : public true_type  {};
+template<> struct __is_integral_helper<i8>                 : public true_type  {};
+template<> struct __is_integral_helper<u8>                 : public true_type  {};
+template<> struct __is_integral_helper<i16>                : public true_type  {};
+template<> struct __is_integral_helper<u16>                : public true_type  {};
+template<> struct __is_integral_helper<i32>                : public true_type  {};
+template<> struct __is_integral_helper<u32>                : public true_type  {};
+template<> struct __is_integral_helper<i64>                : public true_type  {};
+template<> struct __is_integral_helper<u64>                : public true_type  {};
+
+template<typename T>
+struct is_integral : __is_integral_helper<typename remove_cv<T>::type>::type {};
+
+template<typename T> struct __is_unsigned_helper;
+template<typename T> struct __is_unsigned_helper           : public false_type {};
+template<> struct __is_unsigned_helper<u8>                 : public true_type  {};
+template<> struct __is_unsigned_helper<u16>                : public true_type  {};
+template<> struct __is_unsigned_helper<u32>                : public true_type  {};
+template<> struct __is_unsigned_helper<u64>                : public true_type  {};
+
+template<typename T>
+struct is_unsigned : __is_unsigned_helper<typename remove_cv<T>::type>::type {};
+
+template<typename T>
+struct is_signed : __not_<is_unsigned<T>> {};
+
 // ***
 
 }

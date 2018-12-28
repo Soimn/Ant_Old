@@ -54,6 +54,7 @@ Block PoolAllocator<P, B>::allocate (size_t size, byte alignment) {
 
 template<size_t P, size_t B>
 void PoolAllocator<P, B>::deallocate (Block&& blk) {
+	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
     *(reinterpret_cast<void**>(blk.ptr)) = reinterpret_cast<void*>(free_list);
     free_list = reinterpret_cast<void**>(blk.ptr);
 

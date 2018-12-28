@@ -96,12 +96,12 @@ struct unique_ptr {
 
 		typename add_lvalue_reference<element_type>::type
 		operator *() const {
-			// assert(get() != pointer());
+			ASSERT(get() != pointer, "Get() called on empry unique_ptr");
 			return *get();
 		}
 
 		pointer operator -> () const {
-			// assert(get() != pointer());
+			ASSERT(get() != pointer, "Get() called on empry unique_ptr");
 			return get();
 		}
 

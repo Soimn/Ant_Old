@@ -5,7 +5,8 @@
 // Standard Library Headers
 #include <cstdlib>
 #include <cstddef>
-#include <cmath>
+#include <cstdio>
+#include <cstring>
 
 // GLEW & GLFW
 #include <GL/glew.h>
@@ -45,19 +46,15 @@
 // }
 
 // BLAZE
-#define BLAZE_BLAS_MODE 1
-#define BLAZE_BLAS_IS_PARALLEL 1
-#define BLAZE_USE_BLAS_MATRIX_VECTOR_MULTIPLICATION 1
-#define BLAZE_USE_BLAS_MATRIX_MATRIX_MULTIPLICATION 1
-#define BLAZE_BLAS_INCLUDE_FILE <mkl_cblas.h> // change <mkl_cblas.h> to BLAS header
-
-#define BLAZE_THROW(EXCEPTION)\
-	[] {\
-	printf(#EXCEPTION);\
-	std::abort();\
-	}()
-
-#include <blaze/Blaze.h>
+// #define BLAZE_BLAS_MODE 1
+// #define BLAZE_BLAS_IS_PARALLEL 1
+// #define BLAZE_USE_BLAS_MATRIX_VECTOR_MULTIPLICATION 1
+// #define BLAZE_USE_BLAS_MATRIX_MATRIX_MULTIPLICATION 1
+// #define BLAZE_BLAS_INCLUDE_FILE <mkl_cblas.h> // change <mkl_cblas.h> to BLAS header
+// 
+// #define BLAZE_THROW(EXCEPTION) [] { printf(#EXCEPTION), std::abort(); }()
+// 
+// #include <blaze/Blaze.h>
 
 
 #include "core/fixed_int.h"

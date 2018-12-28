@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/common.h"
+#include "core/debug/assert.h"
 #include "core/memory/block.h"
 #include "core/utility/utility.h"
 

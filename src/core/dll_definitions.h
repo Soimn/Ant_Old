@@ -10,7 +10,7 @@
 	#define ANT_HELPER_DLL_IMPORT __declspec(dllimport)
 	#define ANT_HELPER_DLL_EXPORT __declspec(dllexport)
 	#define ANT_HELPER_DLL_LOCAL
-#elif ANT_COMPILER_GNU
+#elif ANT_COMPILER_GNU || ANT_COMPILER_CLANG
 	#define ANT_HELPER_DLL_IMPORT __attribute__ ((visibility ("default")))
 	#define ANT_HELPER_DLL_EXPORT __attribute__ ((visibility ("default")))
 	#define ANT_HELPER_DLL_LOCAL  __attribute__ ((visibility ("hidden")))

@@ -21,6 +21,7 @@ Block FallbackAllocator<P, F>::allocate (size_t size, size_t alignment) {
 
 template<typename P, typename F>
 void FallbackAllocator<P, F>::deallocate (Block&& blk) {
+	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
 	if (P::owns(blk))
 		P::deallocate(forward<Block>(blk));
 

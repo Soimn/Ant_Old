@@ -36,6 +36,7 @@ Block StackAllocator<PAGE_SIZE>::allocate (size_t _size, byte _alignment) {
 
 template<size_t PAGE_SIZE>
 void StackAllocator<PAGE_SIZE>::deallocate (Block&& blk) {
+	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
     if (reinterpret_cast<byte*>(blk.ptr) + blk.size == stack_ptr) {
         stack_ptr = reinterpret_cast<byte*>(stack_ptr) - (blk.adjustment + blk.size);
         remaining_space += blk.size + blk.adjustment;
@@ -45,6 +46,7 @@ void StackAllocator<PAGE_SIZE>::deallocate (Block&& blk) {
 
 template<size_t PAGE_SIZE>
 void StackAllocator<PAGE_SIZE>::deallocateAll () {
+	ASSERT(stack_ptr != memory, "DeallocateAll called one empty memory page");
     remaining_space += static_cast<size_t>(reinterpret_cast<byte*>(stack_ptr) - memory);
     stack_ptr = memory;
 }

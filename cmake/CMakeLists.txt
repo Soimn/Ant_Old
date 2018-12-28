@@ -36,7 +36,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		message(FATAL_ERROR "Unsuported version of Clang. Minimum required: 7.0.0")
 	endif()
 	
-	target_compile_definitions(${TARGET} PUBLIC ANT_COMPILER_GNU)
+	target_compile_definitions(${TARGET} PUBLIC ANT_COMPILER_CLANG)
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")

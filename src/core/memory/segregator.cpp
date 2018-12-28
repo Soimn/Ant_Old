@@ -16,6 +16,8 @@ Block Segregator<t, S, L>::allocate (size_t size, size_t alignment) {
 
 template<size_t t, typename S, typename L>
 void Segregator<t, S, L>::deallocate (Block&& blk) {
+	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
+
 	if (blk.size > t)
 		L::deallocate(forward<Block>(blk));
 	

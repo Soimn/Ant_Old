@@ -1,5 +1,6 @@
 #pragma once
 #include "core/common.h"
+#include "core/debug/assert.h"
 #include "block.h"
 #include "stackallocator.h"
 #include "poolallocator.h"
@@ -19,11 +20,13 @@ Segregator<17, FallbackAllocator<PoolAllocator<1024, 16>, Mallocator>, FallbackA
 
 template<typename T>
 Block allocate () {
+	// lock_guard
 	return global_allocator.allocate(sizeof(T), alignof(T));
 }
 
 void deallocate (Block& blk) {
-	// assert(blk != nullblock_t);
+	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
+	// lock_guard
 	global_allocator.deallocate(forward<Block>(blk));
 }
 
@@ -36,7 +39,7 @@ Block ant_new (Args&& ...args) {
 
 template<typename T>
 void ant_delete (Block& blk) {
-	// assert(blk != nullblock_t);
+	ASSERT(blk != nullblock_t, "Cannot simply delete an uninitialized memory block");
 	reinterpret_cast<T*>(blk.ptr).~T();
 	deallocate(blk);
 }
