@@ -39,6 +39,9 @@ struct remove_pointer;
 
 template<typename T>
 struct add_pointer;
+
+template<typename T>
+struct __is_swappable;
 // ***
 
 // *** Types
@@ -78,6 +81,9 @@ struct conditional { typedef true_t type; };
 template<typename true_t, typename false_t>
 struct conditional<false, true_t, false_t> { typedef false_t type; };
 
+template<bool Cond, typename true_t, typename false_t>
+using conditional_t = typename conditional<Cond, true_t, false_t>::type;
+
 // SFINAE enable_if
 template<bool Cond, typename T = void>
 struct enable_if {};
@@ -115,7 +121,7 @@ template<typename T>
 struct __and_<T> : public T {};
 
 template<typename T1, typename T2>
-struct __and_<T1, T2> : public conditional<T1::type, T2, T1>::type {};
+struct __and_<T1, T2> : public conditional<T1::value, T2, T1>::type {};
 
 template<typename T1, typename T2, typename T3, typename ...Ts>
 struct __and_<T1, T2, T3, Ts...> : public conditional<T1::value, __and_<T2, T3, Ts...>, T1>::type {};
@@ -442,10 +448,10 @@ struct is_swappable;
 
 template<typename T>
 inline typename enable_if<__and_</*__not_<__is_tuple_like<T>>,*/ is_move_constructible<T>, is_move_assignable<T>>::value>::type
-swap (T __a, T __b);
+swap (T& __a, T& __b);
 
 template<typename T, size_t N>
-inline typename enable_if<is_swappable<T>::value>::type
+inline typename enable_if<__is_swappable<T>::value>::type
 swap (T (&__a)[N], T (&__b)[N]);
 
 namespace __is_swappable_detail {
@@ -460,6 +466,9 @@ namespace __is_swappable_detail {
 
 template<typename T>
 struct __is_swappable_impl : public __is_swappable_detail::__do_is_swappable_impl { typedef decltype(__test<T>(0)) type; };
+
+template<typename T>
+struct __is_swappable : public __is_swappable_impl<T>::type {};
 
 template<typename T>
 struct is_swappable : public __is_swappable_impl<T>::type {};
@@ -506,6 +515,9 @@ template<> struct __is_integral_helper<u64>                : public true_type  {
 
 template<typename T>
 struct is_integral : __is_integral_helper<typename remove_cv<T>::type>::type {};
+
+template<typename T>
+inline constexpr bool is_integral_v = is_integral<T>::value;
 
 template<typename T> struct __is_unsigned_helper;
 template<typename T> struct __is_unsigned_helper           : public false_type {};

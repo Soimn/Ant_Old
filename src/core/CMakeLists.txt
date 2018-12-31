@@ -3,6 +3,7 @@ target_sources(${TARGET}
 		"${CMAKE_CURRENT_LIST_DIR}/dll_definitions.h"
 		"${CMAKE_CURRENT_LIST_DIR}/common.h"
 		"${CMAKE_CURRENT_LIST_DIR}/memory.h"
+		"${CMAKE_CURRENT_LIST_DIR}/debug.h"
 )
 
 include("${CMAKE_CURRENT_LIST_DIR}/utility/${CML}")

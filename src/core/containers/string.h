@@ -2,7 +2,7 @@
 
 #include "core/common.h"
 #include "core/debug/assert.h"
-#include "core/memory.h"
+// #include "core/memory.h"
 #include "core/utility/utility.h"
 
 namespace Ant {
@@ -14,9 +14,11 @@ struct StringRefTag {};
 template<int N, typename Tag>
 struct fixed_string {};
 
-template<int N, typename Tag>
-int strlength (const fixed_string<N, Tag>& fstr);
-int strlength (const char* str);
+constexpr int strlength (const char* str);
+
+namespace {
+	constexpr size_t npos = static_cast<size_t>(~0);
+}
 
 
 // ***************************************************
@@ -26,31 +28,43 @@ int strlength (const char* str);
 template<int N>
 struct fixed_string<N, StringArrayTag> {
 	private:
-		unsigned int capacity;
-		char _data[N + 1];
+		size_t capacity;
+		char _data[static_cast<size_t>(N + 1)];
 
 	public:
-		static constexpr size_t npos = -1;
+		constexpr fixed_string() : capacity(N) {
+			static_assert(0 < N, "Illegal size fed to fixed_string");
 
-		constexpr fixed_string() = default;
+		};
 
 		explicit constexpr fixed_string(const char* str) {
-			static_assert(str[N] == '\0');
+			static_assert(0 < N, "Illegal size fed to fixed_string");
+			
+			int len = strlength(str);
+			ASSERT(len != -1, "No null terminator found in string passed to constructor of fixed_string");
+			
 			strcpy(_data, str);
-			_data[strlength(str)] = '\0';
-			capacity = N - strlength(_data);
+			_data[len] = '\0';
+			capacity = static_cast<size_t>(N - len);
+		}
+
+		template<int N1>
+		explicit constexpr fixed_string(const fixed_string<N1, StringRefTag>& str) {
+			strcpy(_data, str.get_data());
 		}
 
 		template<int N1>
 		constexpr fixed_string(const fixed_string<N1, StringRefTag>& s1, const fixed_string<N - N1, StringRefTag>& s2) {
-			for (unsigned int i = 0; i < N1; ++i)
+			static_assert(0 < N, "Illegal size fed to fixed_string");
+			
+			for (int i = 0; i < N1; ++i)
 				_data[i] = s1[i];
 
 			for (unsigned int j = 0; j < N - N1; ++j)
 				_data[N1 + j] = s2[j];
 
 			_data[N] = '\0';
-			capacity = N - strlength(_data);
+			capacity = N - strlength(&(_data[0]));
 		}
 
 		constexpr char operator [] (const int i) const {
@@ -63,17 +77,31 @@ struct fixed_string<N, StringArrayTag> {
 			return _data[i];
 		}
 
-		template<int N1, typename Tag>
-		constexpr void append (const fixed_string<N1, Tag>& fstr) {
-			unsigned int length = strlength(fstr);
+		template<int N1>
+		constexpr void append (const fixed_string<N1, StringArrayTag>& fstr) {
+			size_t length = fstr.length();
 			ASSERT(length <= capacity, "Cannot append string, reason: the string to be appended is larger than the main string's capacity");
-			strcpy(_data + (N - capacity), fstr.get_data());
+			strcpy(&_data[N - capacity], fstr.get_data());
 			capacity -= length;
-			_data[N - capacity] = '\0';
 		}
-		
+
+		constexpr void append (const char* str) {
+			int length = strlength(str);
+			ASSERT(static_cast<size_t>(length) <= capacity, "Cannot append string, reason: the string to be appended is larger than the main string's capacity");
+			strcpy(&_data[N - capacity], str);
+			capacity -= static_cast<size_t>(length);
+		}
+
 		constexpr const char* get_data() const { return _data; }
-		constexpr unsigned int max_capacity () const { return static_cast<unsigned int>(N); }
+		constexpr size_t max_capacity () const { return static_cast<size_t>(N); }
+
+		constexpr void update_capacity () {
+			capacity = static_cast<size_t>(N - strlength(_data));
+		}
+
+		constexpr size_t length () const {
+			return N - capacity;
+		}
 };
 
 
@@ -85,12 +113,13 @@ struct fixed_string<N, StringArrayTag> {
 template<int N>
 struct fixed_string<N, StringRefTag> {
 	private:
-		const char (&_data)[N + 1];
+		const char (&_data)[static_cast<size_t>(N + 1)];
 
 	public:
-		static constexpr size_t npos = -1;
-
-		constexpr fixed_string(const char (&lit) [N + 1]) : _data(ASSERT(lit[N] == '\0', "No null-terminator found"), lit) {}
+		constexpr fixed_string(const char (&lit) [static_cast<size_t>(N + 1)]) : _data(lit) {
+			static_assert(0 < N, "Illegal size fed to fixed_string");
+			ASSERT(lit[N] == '\0', "No null-terminator found");
+		}
 
 		constexpr char operator [] (const int i) const {
 			ASSERT(0 <= i && i <= N, "Index out of range");
@@ -100,7 +129,13 @@ struct fixed_string<N, StringRefTag> {
 		constexpr char& operator [] (const int i) = delete;
 
 		constexpr const char* get_data() const { return _data; }
-		constexpr unsigned int max_capacity () const { return static_cast<unsigned int>(N); }
+		constexpr size_t max_capacity () const { return static_cast<size_t>(N); }
+
+		constexpr size_t length () const {
+			for (char* it = _data; ; ++it) {
+				if (*it == '\0') return it - _data;
+			}
+		}
 };
 
 template<int N>
@@ -116,25 +151,38 @@ constexpr auto operator + (const fixed_string<N1, Tag1>& s1, const fixed_string<
 	-> fixed_array_string<N1 + N2> {
 	
 	return fixed_array_string<N1 + N2>(s1, s2);
-};
+}
 
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 template<int N_P1>
 fixed_string(const char (&lit)[N_P1]) -> fixed_string<N_P1 - 1, StringRefTag>;
-
+#pragma GCC diagnostic warning "-Wsign-conversion"
 
 // *********************
 // | Utility functions |
 // *********************
 
 // *** find, find_*_off
-template<int N, typename Tag>
-constexpr size_t find(const fixed_string<N, Tag>& str, const char target) {
-	static_assert(0 < N);
-	static_assert(str != "");
+constexpr size_t __find_impl(const char* str, const char target, size_t pos = npos) {
+	for (size_t i = 0; i < npos; ++i) {
+		if (str[i] == target) {
+			pos = i;
+			break;
+		}
 
-	size_t pos = fixed_string<N, Tag>::npos;
+		else if (str[i] == '\0')
+			break;
+	}
 
-	for (unsigned int i = 0; i < N; ++i) {
+	return pos;
+}
+
+constexpr size_t find(const char* str, const char target) {
+	return __find_impl(str, target);
+}
+
+constexpr size_t __find_impl(const char* str, const char target, int N, size_t pos = npos) {
+	for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
 		if (str[i] == target) {
 			pos = i;
 			break;
@@ -142,44 +190,70 @@ constexpr size_t find(const fixed_string<N, Tag>& str, const char target) {
 	}
 
 	return pos;
+}
+
+template<int N, typename Tag>
+constexpr size_t find(const fixed_string<N, Tag>& str, const char target) {
+	return __find_impl(str.get_data(), target, N);
+}
+
+constexpr size_t find_first_of(const char* str, const char target) {
+	return __find_impl(str, target);
 }
 
 template<int N, typename Tag>
 constexpr size_t find_first_of(const fixed_string<N, Tag>& str, const char target) {
-	static_assert(0 < N);
-	static_assert(str != "");
-
-	return find(str, target);
+	return __find_impl(str, target, N);
 }
 
-template<int N, typename Tag>
-constexpr size_t find_last_of(const fixed_string<N, Tag>& str, const char target) {
-	static_assert(0 < N);
-	static_assert(str != "");
 
-	size_t pos = fixed_string<N, Tag>::npos;
-
-	for (signed int i = N - 1; i >= 0; --i) {
+constexpr size_t __find_last_of_impl(const char* str, const char target, size_t pos = npos) {
+	for (size_t i = 0; i < npos; ++i) {
 		if (str[i] == target) {
 			pos = i;
+			break;
+		}
+
+		else if (str[i] == '\0')
+			break;
+	}
+
+	return pos;
+}
+
+constexpr size_t find_last_of(const char* str, const char target) {
+	return __find_last_of_impl(str, target);
+}
+
+constexpr size_t __find_last_of_impl(const char* str, const char target, int N, size_t pos = npos) {
+	for (signed int i = N - 1; i >= 0; --i) {
+		if (str[i] == target) {
+			pos = static_cast<size_t>(i);
 			break;
 		}
 	}
 
 	return pos;
 }
+
+template<int N, typename Tag>
+constexpr size_t find_last_of(const fixed_string<N, Tag>& str, const char target) {
+	return __find_last_of_impl(str.get_data(), target, N);
+}
 // ***
 
 // *** reverse
-template<int N, typename Tag>
-constexpr auto reverse (const fixed_string<N, Tag>& fstr) -> fixed_array_string<N> {
-	fixed_array_string<N> buffer;
+template<int N>
+constexpr void reverse (fixed_array_string<N>& fstr) {
+	char* data = const_cast<char*>(fstr.get_data());
+	int start = 0;
+	int end = static_cast<int>(fstr.length()) - 1;
 
-	for (unsigned int i = 0; i < N; ++i) {
-		buffer[i] = fstr[N - 1 - i];
+	while (start < end) {
+		swap(*(data + start), *(data + end));
+		++start;
+		--end;
 	}
-
-	return buffer;
 }
 // ***
 
@@ -189,52 +263,47 @@ static constexpr fu16 MAX_TO_STRING_LENGTH = 200;
 namespace {
 	auto __uint_to_string (u64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 		fixed_array_string<MAX_TO_STRING_LENGTH> fstr;
-		unsigned int j = 0;
+		int j = 0;
 		
 		if (i == 0) {
-			fstr[0] = '0';
-			fstr[1] = '\0';
+			fstr[++j] = '0';
+			fstr[j] = '\0';
 			return fstr;
 		}
 
-		int rem;
+		u64 rem;
 		while (i != 0) {
 			rem = i % base;
 			fstr[j++] = (rem > 9 ? (static_cast<char>((rem - 10) + 'a')) : static_cast<char>(rem + '0'));
 			i /= base;
 		}
 
-		fstr[i] = '\0';
+		fstr[j] = '\0';
+		fstr.update_capacity();
 		reverse(fstr);
 		return fstr;
 	}
 
 	auto __int_to_string (i64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 		fixed_array_string<MAX_TO_STRING_LENGTH> fstr;
-		bool isNegative = false;
 
 		if (i == 0) {
-			fstr[0] = '0';
-			fstr[1] = '\0';
+			fstr.append("0");
+			fstr.append("\0");
 			return fstr;
 		}
 		
 		else if (i < 0 && base == 10) {
-			isNegative = true;
 			i *= -1;
+			fstr.append("-");
 		}
-
-		fstr[0] = '-';
 		fstr.append(__uint_to_string(static_cast<u64>(i), base));
 		return fstr;
 	}
 }
 
-template<typename T, typename = void>
-auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH>;
-
-template<typename T, typename = _Require<is_integral<T>>>
-auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+template<typename T>
+auto __to_string_impl (const T& item, true_type) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	if (is_same<T, bool>::value)
 		return fixed_array_string<MAX_TO_STRING_LENGTH>(static_cast<bool>(item) ? "true" : "false");
 	else if constexpr (is_unsigned<T>::value)
@@ -242,25 +311,42 @@ auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	else
 		return __int_to_string(static_cast<i64>(item), 10);
 }
+
+template<typename T, typename = _Require<is_integral<T> /*or floating*/>>
+auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	return __to_string_impl(item, conditional_t<is_integral_v<T>, true_type, false_type>{});
+}
+
+template<int N, typename Tag>
+auto to_string (const fixed_string<N, Tag>& item) -> fixed_array_string<N> {
+	return fixed_array_string<N>(item);
+}
+
+auto to_string (const char* item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	return fixed_array_string<MAX_TO_STRING_LENGTH>(item);;
+}
 // ***
 
 
 // *** strlen implementation
-template<int N, typename Tag>
-int strlength (const fixed_string<N, Tag>& str) {
-	return strlength(str.get_data());
+
+namespace {
+	constexpr inline int __strlength_impl (const char* str, int count = 0) {
+		for (;; ++count) {
+			if (count >= (~(1 << (8 * sizeof(int) - 1))) - 1) {
+				count = -1;
+				break;
+			}
+
+			else if (str[count] == '\0') break;
+		}
+
+		return count;
+	}
 }
 
-int strlength (const char* str) {
-	unsigned int count = 0;
-	size_t cutoff = -1;
-
-	for (;; ++count) {
-		if (count >= cutoff) return -1;
-		else if (str[count] == '\0') break;
-	}
-
-	return count;
+constexpr inline int strlength (const char* str) {
+	return __strlength_impl(str);
 }
 // ***
 

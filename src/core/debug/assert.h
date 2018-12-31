@@ -26,7 +26,8 @@ inline void* __assertion_failed(const char* ex, const char* msg, const char* fil
 	}
 
 	const char* filename = file + last + 1;
-
+	
+	fputc('\n', stdout);
 	fputs("**************************************************************\n", stdout);
 	fputs("|                      ASSERTION FAILED                      |\n", stdout);
 	fputs("**************************************************************\n", stdout);
@@ -35,6 +36,8 @@ inline void* __assertion_failed(const char* ex, const char* msg, const char* fil
 	if (strlen(msg) != 0)
 		fprintf(stdout, "%s\n", msg);
 	fputs("\n\n", stdout);
+
+	std::abort();
 
 	return reinterpret_cast<void*>(&__assertion_failed);
 }

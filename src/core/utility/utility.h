@@ -55,14 +55,14 @@ move (T&& _t) {
 // *** Swap
 template<typename T>
 inline typename enable_if<__and_</*__not_<__is_tuple_like<T>>,*/ is_move_constructible<T>, is_move_assignable<T>>::value>::type // NOTE(Soimn): FORWARD DECLARATION IN TYPE_TRAITS.H
-swap (T __a, T __b) {
+swap (T& __a, T& __b) {
 	T tmp = move(__a);
 	__a = move(__b);
 	__b = move(tmp);
 }
 
 template<typename T, size_t N>
-inline typename enable_if<is_swappable<T>::value>::type
+inline typename enable_if<__is_swappable<T>::value>::type
 swap (T (&__a)[N], T (&__b)[N]) {
 	for (size_t __n = 0; __n < N; ++__n) {
 		swap(__a[__n], __b[__n]);

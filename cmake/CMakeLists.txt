@@ -14,7 +14,7 @@ set(PUBLIC_I "${ROOT}/include/")
 
 set(CML "CMakeLists.txt")
 
-set(PUBLIC_HEADS "${PUBLIC_I}/ant.h")
+set(PUBLIC_HEADS "${PUBLIC_I}/ant.h" "${SRC}/application.h")
 set(PUBLIC_CORE_HEADS "${SRC}/core/dll_definitions.h")
 
 add_library(${TARGET} SHARED "${SRC}/core/common.h")
