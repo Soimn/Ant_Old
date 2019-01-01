@@ -3,7 +3,7 @@
 #include "core/common.h"
 #include "core/debug/assert.h"
 #include "core/utility/utility.h"
-#include "core/containers/string.h"
+#include "core/utility/cstring_utility.h"
 
 #define LOGF(MSG, ...) ::Ant::core::Log(::Ant::core::LOGLEVEL::FATAL,   true, __FILE__, __LINE__, MSG, ##__VA_ARGS__)
 #define LOGE(MSG, ...) ::Ant::core::Log(::Ant::core::LOGLEVEL::ERROR,   true, __FILE__, __LINE__, MSG, ##__VA_ARGS__)
@@ -40,6 +40,7 @@ namespace {
 		return count;
 	}
 
+	[[maybe_unused]]
 	void __formated_log_helper(FILE* stream, char* curr) {
 		fputs(curr, stream);
 	}
@@ -95,6 +96,7 @@ void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int 
 				break;
 
 			case LOGLEVEL::ERROR:
+				stream = stderr;
 				fputs("[ERROR] ", stream);
 				break;
 
@@ -104,16 +106,21 @@ void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int 
 		}
 		
 		#ifdef ANT_PLATFORM_UNIX
-			const char* filename = file + find_last_of(file, '/');
+			size_t pos = find_last_of(file, '/');
 		#else
-			const char* filename = file + find_last_of(file, '\\');
+			size_t pos = find_last_of(file, '\\');
 		#endif
 
-		fprintf(stream, "%s @ %u ", filename, line);
+		CASSERT(pos != npos);
+
+		fprintf(stream, "%s @ %u ", file + pos + 1, line);
 	}
 
 	__formated_log(stream, format_string, forward<Args>(args)...);
 	fputc('\n', stream);
+
+	if (level == LOGLEVEL::FATAL)
+		std::abort();
 }
 
 }

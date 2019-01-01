@@ -10,7 +10,7 @@ bool FallbackAllocator<P, F>::owns (const Block& blk) {
 }
 
 template<typename P, typename F>
-Block FallbackAllocator<P, F>::allocate (size_t size, size_t alignment) {
+Block FallbackAllocator<P, F>::allocate (size_t size, byte alignment) {
 	Block blk{nullptr, 0, 0};
 
 	if (blk = P::allocate(size, alignment); blk.ptr == nullptr)
@@ -20,13 +20,13 @@ Block FallbackAllocator<P, F>::allocate (size_t size, size_t alignment) {
 }
 
 template<typename P, typename F>
-void FallbackAllocator<P, F>::deallocate (Block&& blk) {
+void FallbackAllocator<P, F>::deallocate (Block& blk) {
 	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
 	if (P::owns(blk))
-		P::deallocate(forward<Block>(blk));
+		P::deallocate(blk);
 
 	else
-		F::deallocate(forward<Block>(blk));
+		F::deallocate(blk);
 }
 
 }

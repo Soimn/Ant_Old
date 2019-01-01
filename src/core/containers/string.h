@@ -2,8 +2,8 @@
 
 #include "core/common.h"
 #include "core/debug/assert.h"
-// #include "core/memory.h"
 #include "core/utility/utility.h"
+#include "core/utility/cstring_utility.h"
 
 namespace Ant {
 namespace core {
@@ -13,13 +13,6 @@ struct StringRefTag {};
 
 template<int N, typename Tag>
 struct fixed_string {};
-
-constexpr int strlength (const char* str);
-
-namespace {
-	constexpr size_t npos = static_cast<size_t>(~0);
-}
-
 
 // ***************************************************
 // | Fixed size string implemented with a char array |
@@ -153,34 +146,23 @@ constexpr auto operator + (const fixed_string<N1, Tag1>& s1, const fixed_string<
 	return fixed_array_string<N1 + N2>(s1, s2);
 }
 
+#if ANT_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 template<int N_P1>
 fixed_string(const char (&lit)[N_P1]) -> fixed_string<N_P1 - 1, StringRefTag>;
+
+#if ANT_COMPILER_GNU
 #pragma GCC diagnostic warning "-Wsign-conversion"
+#endif
+
 
 // *********************
 // | Utility functions |
 // *********************
 
 // *** find, find_*_off
-constexpr size_t __find_impl(const char* str, const char target, size_t pos = npos) {
-	for (size_t i = 0; i < npos; ++i) {
-		if (str[i] == target) {
-			pos = i;
-			break;
-		}
-
-		else if (str[i] == '\0')
-			break;
-	}
-
-	return pos;
-}
-
-constexpr size_t find(const char* str, const char target) {
-	return __find_impl(str, target);
-}
-
 constexpr size_t __find_impl(const char* str, const char target, int N, size_t pos = npos) {
 	for (size_t i = 0; i < static_cast<size_t>(N); ++i) {
 		if (str[i] == target) {
@@ -197,32 +179,9 @@ constexpr size_t find(const fixed_string<N, Tag>& str, const char target) {
 	return __find_impl(str.get_data(), target, N);
 }
 
-constexpr size_t find_first_of(const char* str, const char target) {
-	return __find_impl(str, target);
-}
-
 template<int N, typename Tag>
 constexpr size_t find_first_of(const fixed_string<N, Tag>& str, const char target) {
 	return __find_impl(str, target, N);
-}
-
-
-constexpr size_t __find_last_of_impl(const char* str, const char target, size_t pos = npos) {
-	for (size_t i = 0; i < npos; ++i) {
-		if (str[i] == target) {
-			pos = i;
-			break;
-		}
-
-		else if (str[i] == '\0')
-			break;
-	}
-
-	return pos;
-}
-
-constexpr size_t find_last_of(const char* str, const char target) {
-	return __find_last_of_impl(str, target);
 }
 
 constexpr size_t __find_last_of_impl(const char* str, const char target, int N, size_t pos = npos) {
@@ -312,7 +271,7 @@ auto __to_string_impl (const T& item, true_type) -> fixed_array_string<MAX_TO_ST
 		return __int_to_string(static_cast<i64>(item), 10);
 }
 
-template<typename T, typename = _Require<is_integral<T> /*or floating*/>>
+template<typename T>
 auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	return __to_string_impl(item, conditional_t<is_integral_v<T>, true_type, false_type>{});
 }
@@ -326,30 +285,6 @@ auto to_string (const char* item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	return fixed_array_string<MAX_TO_STRING_LENGTH>(item);;
 }
 // ***
-
-
-// *** strlen implementation
-
-namespace {
-	constexpr inline int __strlength_impl (const char* str, int count = 0) {
-		for (;; ++count) {
-			if (count >= (~(1 << (8 * sizeof(int) - 1))) - 1) {
-				count = -1;
-				break;
-			}
-
-			else if (str[count] == '\0') break;
-		}
-
-		return count;
-	}
-}
-
-constexpr inline int strlength (const char* str) {
-	return __strlength_impl(str);
-}
-// ***
-
 
 struct string {
 	

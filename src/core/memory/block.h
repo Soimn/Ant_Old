@@ -1,5 +1,7 @@
 #pragma once
+
 #include "core/common.h"
+#include "core/utility/utility.h"
 
 namespace Ant {
 namespace core {
@@ -10,7 +12,6 @@ struct Block {
     size_t size; // size of usable memory in block
     byte adjustment; // adjustment made when allocating the block
 
-	operator bool() const { return (ptr == nullptr ? false : true); }
 	bool operator == (const Block& other) const {
 		return (this->ptr == other.ptr &&
 				this->size == other.size &&
@@ -20,6 +21,13 @@ struct Block {
 	bool operator != (const Block& other) const {
 		return !(*this == other);
 	}
+
+	void swap(Block& other) {
+		Block tmp = move(*this);
+		*this = move(other);
+		other = move(tmp);
+	}
+
 };
 
 constexpr const Block nullblock_t = {nullptr, 0, 0};

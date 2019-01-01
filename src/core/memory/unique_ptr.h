@@ -1,6 +1,7 @@
 #pragma once
 #include "core/common.h"
 #include "core/utility/utility.h"
+#include "core/debug.h"
 #include "block.h"
 #include "allocators.h"
 
@@ -8,83 +9,47 @@ namespace Ant {
 namespace core {
 namespace memory {
 
-namespace {
-template<typename T>
-struct unique_ptr_impl {
-	template<typename U, typename = void>
-	struct _Ptr { using type = U*; };
-
-	template<typename U>
-	struct _Ptr<U, void_t<remove_reference_t<T>*>> {
-		using type = remove_reference_t<T>*;
-	};
-
-	public:
-		using pointer = typename _Ptr<T>::type;
-
-		unique_ptr_impl() = default;
-		unique_ptr_impl(Block blk) : m_t(blk) {}
-
-	private:
-		Block m_t;
-};
-}
-
-template<typename T, typename = _Require<__not_<is_array<T>>>>
+template<typename T, typename = _Require<__is_referenceable<T>>>
 struct unique_ptr {
 	private:
-		unique_ptr_impl<T> m_impl;
+		Block m_block;
 
 	public:
-		using pointer = typename unique_ptr_impl<T>::pointer;
+		using pointer = T*;
 		using element_type = T;
+		
+		constexpr unique_ptr() : m_block({nullptr, 0, 0}) {}
+		explicit unique_ptr(Block blk) : m_block(blk) {}
 
-	private:
-		template<typename U>
-		using __safe_conversion_u = __and_<is_convertible<typename unique_ptr_impl<U>::pointer, pointer>, __not_<is_array<U>>>;
-
-	public:
-		constexpr unique_ptr() : m_impl() {}
-		explicit unique_ptr(Block blk) : m_impl(blk) {}
-		constexpr unique_ptr(nullptr_t) : m_impl() {}
-
-		unique_ptr(unique_ptr<T>&& other) : m_impl(other.release()) {}
-		template<typename U, typename = _Require<__safe_conversion_u<U>>>
-		unique_ptr(unique_ptr<U>&& other) : m_impl(other.release()) {}
-
+		unique_ptr(unique_ptr<T>&& other) : m_block(other.release()) {}
+		
 		~unique_ptr() {
 			reset();
 		}
 
 		pointer get () const {
-			return reinterpret_cast<pointer>(m_impl.m_t.ptr);
+			return reinterpret_cast<pointer>(m_block.ptr);
 		}
 
 		Block release() {
-			Block blk = this->m_impl.m_t;
-			this->m_impl.m_t = nullblock_t;
+			Block blk = this->m_block;
+			this->m_block = nullblock_t;
 			return blk;
 		}
 
 		void reset(Block blk = nullblock_t) {
-			swap(m_impl.m_t, blk);
-			if (!blk)
-				deallocate(blk);
+			m_block.swap(blk);
+			if (blk != nullblock_t) {
+				ant_delete<T>(blk);
+			}
 		}
 
 		void swap(unique_ptr& _uptr) {
-			swap(m_impl, _uptr.m_impl);
+			m_block.swap(_uptr.m_block);
 		}
 	
 		
 		unique_ptr& operator = (unique_ptr&& other) {
-			reset(other.release());
-			return *this;
-		}
-
-		template<typename U>
-		typename enable_if<__safe_conversion_u<U>::value, unique_ptr&>::type
-		operator = (unique_ptr<U>&& other) {
 			reset(other.release());
 			return *this;
 		}
@@ -94,14 +59,13 @@ struct unique_ptr {
 			return *this;
 		}
 
-		typename add_lvalue_reference<element_type>::type
-		operator *() const {
-			ASSERT(get() != pointer(), "Get() called on empry unique_ptr");
+		element_type& operator *() const {
+			ASSERT(get() != pointer(), "get() called on empry unique_ptr");
 			return *get();
 		}
 
 		pointer operator -> () const {
-			ASSERT(get() != pointer(), "Get() called on empry unique_ptr");
+			ASSERT(get() != pointer(), "get() called on empry unique_ptr");
 			return get();
 		}
 

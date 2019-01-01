@@ -22,9 +22,9 @@ struct PoolAllocator {
         PoolAllocator();
         ~PoolAllocator();
 
-        bool owns (const Block& blk);
+        inline bool owns (const Block& blk);
         Block allocate (size_t size, byte alignment);
-        void deallocate (Block&& blk);
+        void deallocate (Block& blk);
 		void deallocateAll ();
 };
 

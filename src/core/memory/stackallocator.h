@@ -17,7 +17,7 @@ struct StackAllocator {
 
     public:
         StackAllocator() : stack_ptr(memory), remaining_space(sizeof(memory)) {}
-        ~StackAllocator() = default;
+        ~StackAllocator() { ASSERT(stack_ptr == memory && remaining_space == PAGE_SIZE, "Memory leak in stack allocator"); }
 
         StackAllocator(const StackAllocator& other) = delete;
         StackAllocator(StackAllocator&& other) = delete;
@@ -30,7 +30,7 @@ struct StackAllocator {
         inline size_t get_space () const;
 
         Block allocate (size_t size, byte alignment);
-        void deallocate (Block&& blk);
+        void deallocate (Block& blk);
         void deallocateAll ();
 };
 

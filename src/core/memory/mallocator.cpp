@@ -16,7 +16,7 @@ Block Mallocator::allocate (size_t size, byte alignment) {
 	return blk;
 }
 
-void Mallocator::deallocate (Block&& blk) {
+void Mallocator::deallocate (Block& blk) {
 	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
 	free(blk.ptr);
 	blk = {nullptr, 0, 0};

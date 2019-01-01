@@ -10,19 +10,30 @@ bool Segregator<t, S, L>::owns (const Block& blk) {
 }
 
 template<size_t t, typename S, typename L>
-Block Segregator<t, S, L>::allocate (size_t size, size_t alignment) {
-	return size > t ? L::allocate(size, alignment) : S::allocate(size, alignment);
+Block Segregator<t, S, L>::allocate (size_t size, byte alignment) {
+	Block blk;
+
+	if (size <= t)
+		blk = S::allocate(size, alignment);
+
+	if (blk == nullblock_t)
+		blk = L::allocate(size, alignment);
+
+// 	if (blk == nullblock_t)
+// 		LOGF("Failed to allocate memory");	
+
+	return blk;
 }
 
 template<size_t t, typename S, typename L>
-void Segregator<t, S, L>::deallocate (Block&& blk) {
+void Segregator<t, S, L>::deallocate (Block& blk) {
 	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
 
-	if (blk.size > t)
-		L::deallocate(forward<Block>(blk));
+	if (blk.size <= t && S::owns(blk))
+		S::deallocate(blk);
 	
 	else
-		S::deallocate(forward<Block>(blk));
+		L::deallocate(blk);
 }
 
 }

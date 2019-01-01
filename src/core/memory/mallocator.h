@@ -11,7 +11,7 @@ namespace memory {
 struct Mallocator {
 	public:
 		Block allocate (size_t size, byte alignment);
-		void deallocate (Block&& blk);
+		void deallocate (Block& blk);
 };
 
 }
