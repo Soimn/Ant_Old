@@ -2,9 +2,9 @@
 
 // Standard Library Headers
 #include <cstdlib>
-#include <cstddef>
+#include <cstddef> // maybe unused
 #include <cstdio>
-#include <cstring>
+#include <cstring> // maybe unused
 
 // GLEW & GLFW
 #include <GL/glew.h>
