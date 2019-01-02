@@ -7,7 +7,6 @@
 
 namespace Ant {
 namespace core {
-namespace memory {
 
 template<typename T, typename = _Require<__is_referenceable<T>, __not_<is_array<T>>>>
 struct unique_ptr {
@@ -172,6 +171,5 @@ inline typename __MakeUniq<T>::__array make_unique (size_t num) = delete;
 template<typename T, typename ...Args>
 inline typename __MakeUniq<T>::__invalid_type make_unique(Args&& ...) = delete;
 
-}
 }
 }

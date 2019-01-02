@@ -4,6 +4,7 @@
 #include "core/debug/assert.h"
 #include "core/utility/utility.h"
 #include "core/utility/cstring_utility.h"
+#include "core/containers/string.h"
 
 #define LOGF(MSG, ...) ::Ant::core::Log(::Ant::core::LOGLEVEL::FATAL,   true, __FILE__, __LINE__, MSG, ##__VA_ARGS__)
 #define LOGE(MSG, ...) ::Ant::core::Log(::Ant::core::LOGLEVEL::ERROR,   true, __FILE__, __LINE__, MSG, ##__VA_ARGS__)
@@ -25,7 +26,7 @@ enum class LOGLEVEL : u8 {FATAL, ERROR, WARNING, INFO, DEBUG};
 namespace {
 	static constexpr char FORMAT_CHAR = '%';
 
-	size_t __count_format_char (const char* str) {
+	inline size_t __count_format_char (const char* str) {
 		size_t count = 0;
 		int length = strlength(str);
 		CASSERT(length != -1);
@@ -41,12 +42,12 @@ namespace {
 	}
 
 	[[maybe_unused]]
-	void __formated_log_helper(FILE* stream, char* curr) {
+	inline void __formated_log_helper(FILE* stream, char* curr) {
 		fputs(curr, stream);
 	}
 
 	template<typename Head, typename ...Tail>
-	void __formated_log_helper (FILE* stream, char* curr, Head&& head, Tail&& ...tail) {
+	inline void __formated_log_helper (FILE* stream, char* curr, Head&& head, Tail&& ...tail) {
 		if(*curr == '\0') return;
 
 		while (*curr != '%') {
@@ -69,14 +70,14 @@ namespace {
 
 	template<typename ...Args>
 	void __formated_log (FILE* stream, const char* format_string, Args&& ...args) {
-		ASSERT(__count_format_char(format_string) == sizeof...(Args), "Wrong number of formating characters in format string");
+		FASSERT(__count_format_char(format_string) == sizeof...(Args), "Wrong number of formating characters in format string %s", format_string);
 		
 		__formated_log_helper(stream, const_cast<char*>(format_string), forward<Args>(args)...);
 	}
 }
 
 template<typename ...Args>
-void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int line, const char* format_string, Args ...args) {
+inline void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int line, const char* format_string, Args ...args) {
 	FILE* stream = stdout;
 
 	// lock_guard

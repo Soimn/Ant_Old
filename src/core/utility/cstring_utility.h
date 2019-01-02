@@ -2,6 +2,9 @@
 
 #include "core/common.h"
 
+namespace Ant {
+namespace core {
+
 constexpr size_t npos = static_cast<size_t>(~0);
 
 namespace {
@@ -72,4 +75,7 @@ constexpr size_t find_first_of(const char* str, const char target) {
 ANT_PURE
 constexpr size_t find_last_of(const char* str, const char target) {
 	return __find_last_of_impl(str, target);
+}
+
+}
 }

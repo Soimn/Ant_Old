@@ -3,7 +3,7 @@
 // ***************
 // |     GCC     |
 // ***************
-#ifdef ANT_COMPILER_GNU
+#ifdef ANT_COMPILER_GCC
 
 #define ANT_PURE __attribute__((pure))
 

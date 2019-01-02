@@ -146,14 +146,14 @@ constexpr auto operator + (const fixed_string<N1, Tag1>& s1, const fixed_string<
 	return fixed_array_string<N1 + N2>(s1, s2);
 }
 
-#if ANT_COMPILER_GNU
+#ifdef ANT_COMPILER_GCC
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
 template<int N_P1>
 fixed_string(const char (&lit)[N_P1]) -> fixed_string<N_P1 - 1, StringRefTag>;
 
-#if ANT_COMPILER_GNU
+#ifdef ANT_COMPILER_GCC
 #pragma GCC diagnostic warning "-Wsign-conversion"
 #endif
 
@@ -262,7 +262,7 @@ namespace {
 }
 
 template<typename T>
-auto __to_string_impl (const T& item, true_type) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+auto __to_string_integral_impl (T item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	if (is_same<T, bool>::value)
 		return fixed_array_string<MAX_TO_STRING_LENGTH>(static_cast<bool>(item) ? "true" : "false");
 	else if constexpr (is_unsigned<T>::value)
@@ -273,17 +273,17 @@ auto __to_string_impl (const T& item, true_type) -> fixed_array_string<MAX_TO_ST
 
 template<typename T>
 auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
-	return __to_string_impl(item, conditional_t<is_integral_v<T>, true_type, false_type>{});
+	if constexpr (is_integral<T>::value)
+		return __to_string_integral_impl(item);
+	else if (is_same<T, const char*>::value)
+		return fixed_array_string<MAX_TO_STRING_LENGTH>(item);
 }
 
 template<int N, typename Tag>
-auto to_string (const fixed_string<N, Tag>& item) -> fixed_array_string<N> {
-	return fixed_array_string<N>(item);
+auto to_string (const fixed_string<N, Tag>& fstr) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	return fixed_array_string<N>(fstr);
 }
 
-auto to_string (const char* item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
-	return fixed_array_string<MAX_TO_STRING_LENGTH>(item);;
-}
 // ***
 
 struct string {
