@@ -519,6 +519,7 @@ struct is_integral : __is_integral_helper<typename remove_cv<T>::type>::type {};
 template<typename T>
 inline constexpr bool is_integral_v = is_integral<T>::value;
 
+// TODO(Soimn): Refactor to utilize T(-1) < T(0) if signed
 template<typename T> struct __is_unsigned_helper;
 template<typename T> struct __is_unsigned_helper           : public false_type {};
 template<> struct __is_unsigned_helper<u8>                 : public true_type  {};
