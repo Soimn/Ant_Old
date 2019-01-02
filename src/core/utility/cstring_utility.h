@@ -6,7 +6,7 @@ constexpr size_t npos = static_cast<size_t>(~0);
 
 namespace {
 	
-	// GNU pure
+	ANT_PURE
 	constexpr inline int __strlength_impl (const char* str, int count = 0) {
 		for (;; ++count) {
 			
@@ -24,7 +24,7 @@ namespace {
 		return count;
 	}
 
-	// GNU pure
+	ANT_PURE
 	constexpr inline size_t __find_impl(const char* str, const char target, size_t pos = npos) {
 		for (size_t i = 0; i < npos; ++i) {
 			if (str[i] == target) {
@@ -39,7 +39,7 @@ namespace {
 		return pos;
 	}
 
-	// GNU pure
+	ANT_PURE
 	constexpr inline size_t __find_last_of_impl(const char* str, const char target, size_t pos = npos) {
 		for (size_t i = 0; i < npos; ++i) {
 			if (str[i] == target) {
@@ -54,22 +54,22 @@ namespace {
 	}
 }
 
-// GNU pure
+ANT_PURE
 constexpr inline int strlength (const char* str) {
 	return __strlength_impl(str);
 }
 
-// GNU pure
+ANT_PURE
 constexpr size_t find(const char* str, const char target) {
 	return __find_impl(str, target);
 }
 
-// GNU pure
+ANT_PURE
 constexpr size_t find_first_of(const char* str, const char target) {
 	return __find_impl(str, target);
 }
 
-// GNU pure
+ANT_PURE
 constexpr size_t find_last_of(const char* str, const char target) {
 	return __find_last_of_impl(str, target);
 }
