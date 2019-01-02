@@ -9,7 +9,7 @@ namespace Ant {
 namespace core {
 namespace memory {
 
-template<typename T, typename = _Require<__is_referenceable<T>>>
+template<typename T, typename = _Require<__is_referenceable<T>, __not_<is_array<T>>>>
 struct unique_ptr {
 	private:
 		Block m_block;
