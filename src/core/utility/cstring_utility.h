@@ -2,14 +2,18 @@
 
 #include "core/common.h"
 
-namespace {
-	constexpr size_t npos = static_cast<size_t>(~0);
-}
+constexpr size_t npos = static_cast<size_t>(~0);
 
 namespace {
+	
+	// GNU pure
 	constexpr inline int __strlength_impl (const char* str, int count = 0) {
 		for (;; ++count) {
-			if (count >= (~(1 << (8 * sizeof(int) - 1))) - 1) {
+			
+			// 1 << (8*sizeof(int) - 1) will create a int with the sign bit set,
+			// the not operator is used to flip this.
+			// Subtracting 1 yields the value: 2,147,483,646 for 32 bit integers
+			if (count >= (~(1 << (8 * sizeof(int) - 1))) - 1) { 
 				count = -1;
 				break;
 			}
@@ -20,7 +24,8 @@ namespace {
 		return count;
 	}
 
-	constexpr size_t __find_impl(const char* str, const char target, size_t pos = npos) {
+	// GNU pure
+	constexpr inline size_t __find_impl(const char* str, const char target, size_t pos = npos) {
 		for (size_t i = 0; i < npos; ++i) {
 			if (str[i] == target) {
 				pos = i;
@@ -34,7 +39,8 @@ namespace {
 		return pos;
 	}
 
-	constexpr size_t __find_last_of_impl(const char* str, const char target, size_t pos = npos) {
+	// GNU pure
+	constexpr inline size_t __find_last_of_impl(const char* str, const char target, size_t pos = npos) {
 		for (size_t i = 0; i < npos; ++i) {
 			if (str[i] == target) {
 				pos = i;
@@ -48,20 +54,22 @@ namespace {
 	}
 }
 
+// GNU pure
 constexpr inline int strlength (const char* str) {
 	return __strlength_impl(str);
 }
 
+// GNU pure
 constexpr size_t find(const char* str, const char target) {
 	return __find_impl(str, target);
 }
 
-
+// GNU pure
 constexpr size_t find_first_of(const char* str, const char target) {
 	return __find_impl(str, target);
 }
 
-
+// GNU pure
 constexpr size_t find_last_of(const char* str, const char target) {
 	return __find_last_of_impl(str, target);
 }
