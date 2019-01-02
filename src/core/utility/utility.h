@@ -8,8 +8,8 @@ namespace core {
 
 // *** Memory align
 
-[[gnu::pure]]
-inline byte* align (void* ptr, byte alignment) {
+ANT_PURE
+constexpr inline byte* align (void* ptr, byte alignment) {
 	return reinterpret_cast<byte*>(ptr) + static_cast<byte>(((~reinterpret_cast<uintptr>(ptr)) + 1) & static_cast<byte>(alignment - 1));
 }
 
@@ -35,9 +35,11 @@ inline void* align_std (byte alignment, size_t size, void*& ptr, size_t& space) 
 // *** Forward
 
 template<typename T>
+ANT_PURE
 constexpr T&& forward (typename remove_reference<T>::type& _t) { return static_cast<T&&>(_t); }
 
 template<typename T>
+ANT_PURE
 constexpr T&& forward (typename remove_reference<T>::type&& _t) {
 	static_assert(!is_lvalue_reference<T>::value, "template argument substituting T is an l-value reference");
 	return static_cast<T&&>(_t);
@@ -46,6 +48,7 @@ constexpr T&& forward (typename remove_reference<T>::type&& _t) {
 
 // *** Move
 template<typename T>
+ANT_PURE
 constexpr typename remove_reference<T>::type&&
 move (T&& _t) {
 	return static_cast<typename remove_reference<T>::type&&>(_t);	
@@ -54,6 +57,7 @@ move (T&& _t) {
 
 // *** Swap
 template<typename T>
+ANT_PURE
 inline typename enable_if<__and_</*__not_<__is_tuple_like<T>>,*/ is_move_constructible<T>, is_move_assignable<T>>::value>::type // NOTE(Soimn): FORWARD DECLARATION IN TYPE_TRAITS.H
 swap (T& __a, T& __b) {
 	T tmp = move(__a);
@@ -62,6 +66,7 @@ swap (T& __a, T& __b) {
 }
 
 template<typename T, size_t N>
+ANT_PURE
 inline typename enable_if<__is_swappable<T>::value>::type
 swap (T (&__a)[N], T (&__b)[N]) {
 	for (size_t __n = 0; __n < N; ++__n) {
@@ -74,10 +79,13 @@ swap (T (&__a)[N], T (&__b)[N]) {
 
 #ifdef ANT_COMPILER_GNU
 template<typename T>
-inline constexpr T* addressof(T& item) { return __builtin_addressof(item);}
+ANT_PURE
+constexpr inline T* addressof(T& item) { return __builtin_addressof(item); }
 #else
+
 template<typename T>
-T* addressof (T& item) {
+ANT_PURE
+constexpr inline T* addressof (T& item) {
 	return reinterpret_cast<T*>(&const_cast<char&>(reinterpret_cast<const volatile char&>(item)));
 }
 #endif
@@ -103,6 +111,7 @@ template<class T>
 reference_wrapper(reference_wrapper<T>) -> reference_wrapper<T>;
 
 template<typename T>
+ANT_PURE
 reference_wrapper<T> ref (T& item) {
 	return reference_wrapper<T>(item);
 }
