@@ -24,7 +24,7 @@ namespace core {
 enum class LOGLEVEL : u8 {FATAL, ERROR, WARNING, INFO, DEBUG};
 
 namespace {
-	static constexpr char FORMAT_CHAR = '%';
+	static constexpr const char FORMAT_CHAR = '%';
 
 	inline size_t __count_format_char (const char* str) {
 		size_t count = 0;
