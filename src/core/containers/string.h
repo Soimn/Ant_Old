@@ -220,7 +220,7 @@ constexpr void reverse (fixed_array_string<N>& fstr) {
 static constexpr fu16 MAX_TO_STRING_LENGTH = 200;
 
 namespace {
-	auto __uint_to_string (u64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	inline auto __uint_to_string (u64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 		fixed_array_string<MAX_TO_STRING_LENGTH> fstr;
 		int j = 0;
 		
@@ -243,7 +243,7 @@ namespace {
 		return fstr;
 	}
 
-	auto __int_to_string (i64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	inline auto __int_to_string (i64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 		fixed_array_string<MAX_TO_STRING_LENGTH> fstr;
 
 		if (i == 0) {
@@ -262,7 +262,7 @@ namespace {
 }
 
 template<typename T>
-auto __to_string_integral_impl (T item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+inline auto __to_string_integral_impl (T item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	if (is_same<T, bool>::value)
 		return fixed_array_string<MAX_TO_STRING_LENGTH>(static_cast<bool>(item) ? "true" : "false");
 	else if constexpr (is_unsigned<T>::value)
@@ -272,7 +272,7 @@ auto __to_string_integral_impl (T item) -> fixed_array_string<MAX_TO_STRING_LENG
 }
 
 template<typename T>
-auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+inline auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	if constexpr (is_integral<T>::value)
 		return __to_string_integral_impl(item);
 	else if (is_same<T, const char*>::value)
@@ -280,7 +280,7 @@ auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 }
 
 template<int N, typename Tag>
-auto to_string (const fixed_string<N, Tag>& fstr) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+inline auto to_string (const fixed_string<N, Tag>& fstr) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	return fixed_array_string<N>(fstr);
 }
 
