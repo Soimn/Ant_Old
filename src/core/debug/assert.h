@@ -17,28 +17,23 @@ namespace Ant {
 namespace core {
 
 inline void* __assertion_failed(const char* ex, const char* msg, const char* file, unsigned int line) {
-	unsigned int last;
-	for (unsigned int i = 0; i < strlength(file); ++i) {
-		#ifdef ANT_PLATFORM_UNIX
-			if (file[i] == '/')
-		#else
-			if (file[i] == '\\')
-		#endif
-		
-		last = i;
-	}
-
-	const char* filename = file + last + 1;
+	#ifdef ANT_PLATFORM_UNIX
+	const char target = '/';
+	#elif
+	const char target = '\\';
+	#endif
 	
-	fputc('\n', stdout);
-	fputs("**************************************************************\n", stdout);
-	fputs("|                      ASSERTION FAILED                      |\n", stdout);
-	fputs("**************************************************************\n", stdout);
-	fprintf(stdout, "File: %s   Line: %d\n", filename, line);
-	fprintf(stdout, "Expression: %s\n", ex);
+	const char* filename = file + find_last_of(file, target) + 1;
+	
+	fputc('\n', stderr);
+	fputs("**************************************************************\n", stderr);
+	fputs("|                      ASSERTION FAILED                      |\n", stderr);
+	fputs("**************************************************************\n", stderr);
+	fprintf(stderr, "File: %s   Line: %d\n", filename, line);
+	fprintf(stderr, "Expression: %s\n", ex);
 	if (strlength(msg) != 0)
-		fprintf(stdout, "%s\n", msg);
-	fputs("\n\n", stdout);
+		fprintf(stderr, "%s\n", msg);
+	fputs("\n\n", stderr);
 
 	std::abort();
 
