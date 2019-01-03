@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/common.h"
+#include "core/utility/cstring_utility.h"
 
 #ifdef ANT_DEBUG
 #define CASSERT(EX) (void)(EX ? nullptr : ::Ant::core::__assertion_failed(#EX, "", __FILE__, __LINE__))
@@ -17,7 +18,7 @@ namespace core {
 
 inline void* __assertion_failed(const char* ex, const char* msg, const char* file, unsigned int line) {
 	unsigned int last;
-	for (unsigned int i = 0; i < strlen(file); ++i) {
+	for (unsigned int i = 0; i < strlength(file); ++i) {
 		#ifdef ANT_PLATFORM_UNIX
 			if (file[i] == '/')
 		#else
@@ -35,7 +36,7 @@ inline void* __assertion_failed(const char* ex, const char* msg, const char* fil
 	fputs("**************************************************************\n", stdout);
 	fprintf(stdout, "File: %s   Line: %d\n", filename, line);
 	fprintf(stdout, "Expression: %s\n", ex);
-	if (strlen(msg) != 0)
+	if (strlength(msg) != 0)
 		fprintf(stdout, "%s\n", msg);
 	fputs("\n\n", stdout);
 
