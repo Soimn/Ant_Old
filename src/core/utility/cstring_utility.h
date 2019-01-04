@@ -63,17 +63,17 @@ constexpr inline int strlength (const char* str) {
 }
 
 ANT_PURE
-constexpr size_t find(const char* str, const char target) {
+constexpr inline size_t find(const char* str, const char target) {
 	return __find_impl(str, target);
 }
 
 ANT_PURE
-constexpr size_t find_first_of(const char* str, const char target) {
+constexpr inline size_t find_first_of(const char* str, const char target) {
 	return __find_impl(str, target);
 }
 
 ANT_PURE
-constexpr size_t find_last_of(const char* str, const char target) {
+constexpr inline size_t find_last_of(const char* str, const char target) {
 	return __find_last_of_impl(str, target);
 }
 
