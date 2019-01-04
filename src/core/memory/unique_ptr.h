@@ -17,7 +17,7 @@ struct unique_ptr {
 		using pointer = T*;
 		using element_type = T;
 		
-		constexpr unique_ptr() : m_block({nullptr, 0, 0}) {}
+		constexpr unique_ptr() : m_block(nullblock) {}
 		explicit unique_ptr(Block blk) : m_block(blk) {}
 
 		unique_ptr(unique_ptr<T>&& other) : m_block(other.release()) {}
@@ -32,13 +32,13 @@ struct unique_ptr {
 
 		Block release() {
 			Block blk = this->m_block;
-			this->m_block = nullblock_t;
+			this->m_block = nullblock;
 			return blk;
 		}
 
-		void reset(Block blk = nullblock_t) {
+		void reset(Block blk = nullblock) {
 			m_block.swap(blk);
-			if (blk != nullblock_t) {
+			if (blk != nullblock) {
 				ant_delete<T>(blk);
 			}
 		}
