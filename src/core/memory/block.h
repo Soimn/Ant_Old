@@ -30,7 +30,7 @@ struct Block {
 
 };
 
-constexpr const Block nullblock_t = {nullptr, 0, 0};
+constexpr const Block nullblock = {nullptr, 0, 0};
 
 }
 }
