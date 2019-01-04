@@ -5,7 +5,7 @@ namespace core {
 namespace memory {
 
 Block Mallocator::allocate (size_t size, byte alignment) {
-	Block blk{nullptr, 0, 0};
+	Block blk = nullblock;
 	void* memory = malloc(size + alignment - 1);
 
 	if (memory != nullptr) {
@@ -17,9 +17,9 @@ Block Mallocator::allocate (size_t size, byte alignment) {
 }
 
 void Mallocator::deallocate (Block& blk) {
-	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
+	ASSERT(blk != nullblock, "Cannot simply deallocate an uninitialized memory block");
 	free(blk.ptr);
-	blk = {nullptr, 0, 0};
+	blk = nullblock;
 }
 
 }
