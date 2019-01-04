@@ -47,7 +47,7 @@ namespace {
 	}
 
 	template<typename Head, typename ...Tail>
-	inline void __formated_log_helper (FILE* stream, char* curr, Head&& head, Tail&& ...tail) {
+	void __formated_log_helper (FILE* stream, char* curr, Head&& head, Tail&& ...tail) {
 		if(*curr == '\0') return;
 
 		while (*curr != '%') {
@@ -69,7 +69,7 @@ namespace {
 	}
 
 	template<typename ...Args>
-	void __formated_log (FILE* stream, const char* format_string, Args&& ...args) {
+	inline void __formated_log (FILE* stream, const char* format_string, Args&& ...args) {
 		FASSERT(__count_format_char(format_string) == sizeof...(Args), "Wrong number of formating characters in format string %s", format_string);
 		
 		__formated_log_helper(stream, const_cast<char*>(format_string), forward<Args>(args)...);
@@ -80,7 +80,9 @@ template<typename ...Args>
 inline void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int line, const char* format_string, Args ...args) {
 	FILE* stream = stdout;
 
-	// lock_guard
+	/* NOTE(Soimn): a lock_guard is needed here to avoid a race condition. Alternatively push
+			a message onto a buffer instead of immediately printing it.
+	*/
 	if (write_msg_header) {
 		switch(level) {
 			case LOGLEVEL::DEBUG:
