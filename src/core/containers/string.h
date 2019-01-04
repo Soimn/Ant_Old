@@ -175,7 +175,7 @@ constexpr size_t __find_impl(const char* str, const char target, int N, size_t p
 }
 
 template<int N, typename Tag>
-constexpr size_t find(const fixed_string<N, Tag>& str, const char target) {
+constexpr inline size_t find(const fixed_string<N, Tag>& str, const char target) {
 	return __find_impl(str.get_data(), target, N);
 }
 
@@ -196,7 +196,7 @@ constexpr size_t __find_last_of_impl(const char* str, const char target, int N, 
 }
 
 template<int N, typename Tag>
-constexpr size_t find_last_of(const fixed_string<N, Tag>& str, const char target) {
+constexpr inline size_t find_last_of(const fixed_string<N, Tag>& str, const char target) {
 	return __find_last_of_impl(str.get_data(), target, N);
 }
 // ***
@@ -220,7 +220,7 @@ constexpr void reverse (fixed_array_string<N>& fstr) {
 static constexpr fu16 MAX_TO_STRING_LENGTH = 200;
 
 namespace {
-	inline auto __uint_to_string (u64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	auto __uint_to_string (u64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 		fixed_array_string<MAX_TO_STRING_LENGTH> fstr;
 		int j = 0;
 		
@@ -243,7 +243,7 @@ namespace {
 		return fstr;
 	}
 
-	inline auto __int_to_string (i64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	auto __int_to_string (i64 i, u8 base) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 		fixed_array_string<MAX_TO_STRING_LENGTH> fstr;
 
 		if (i == 0) {
