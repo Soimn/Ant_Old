@@ -35,7 +35,7 @@ Block allocate () {
 }
 
 void deallocate (Block& blk) {
-	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
+	ASSERT(blk != nullblock, "Cannot simply deallocate an uninitialized memory block");
 	
 	// lock_guard
 	get_allocator().deallocate(blk);
@@ -50,7 +50,7 @@ Block ant_new (Args&& ...args) {
 
 template<typename T>
 void ant_delete (Block& blk) {
-	ASSERT(blk != nullblock_t, "Cannot simply delete an uninitialized memory block");
+	ASSERT(blk != nullblock, "Cannot simply delete an uninitialized memory block");
 	reinterpret_cast<T*>(blk.ptr)->~T();
 	deallocate(blk);
 }
