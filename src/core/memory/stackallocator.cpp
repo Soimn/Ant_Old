@@ -22,7 +22,7 @@ inline size_t StackAllocator<PAGE_SIZE>::get_space () const {
 
 template<size_t PAGE_SIZE>
 Block StackAllocator<PAGE_SIZE>::allocate (size_t _size, byte _alignment) {
-    Block blk{nullptr, 0, 0};
+    Block blk = nullblock;
     size_t prev_remaining_space = remaining_space;
 
     if (align_std(_alignment, _size, stack_ptr, remaining_space) != nullptr) {
@@ -36,11 +36,11 @@ Block StackAllocator<PAGE_SIZE>::allocate (size_t _size, byte _alignment) {
 
 template<size_t PAGE_SIZE>
 void StackAllocator<PAGE_SIZE>::deallocate (Block& blk) {
-	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
+	ASSERT(blk != nullblock, "Cannot simply deallocate an uninitialized memory block");
     if (reinterpret_cast<byte*>(blk.ptr) + blk.size == stack_ptr) {
         stack_ptr = reinterpret_cast<byte*>(stack_ptr) - (blk.adjustment + blk.size);
         remaining_space += blk.size + blk.adjustment;
-        blk = {nullptr, 0, 0};
+        blk = nullblock;
     } 
 }
 
