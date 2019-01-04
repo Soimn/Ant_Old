@@ -41,7 +41,7 @@ PoolAllocator<P, B>::~PoolAllocator () {
 
 template<size_t P, size_t B>
 Block PoolAllocator<P, B>::allocate (size_t size, byte alignment) {
-    Block blk{nullptr, 0, 0};
+    Block blk = nullblock;
 
     if (free_list != nullptr) {
         byte adjustment = static_cast<byte>(align(free_list, alignment) - reinterpret_cast<byte*>(free_list));
@@ -59,11 +59,11 @@ Block PoolAllocator<P, B>::allocate (size_t size, byte alignment) {
 
 template<size_t P, size_t B>
 void PoolAllocator<P, B>::deallocate (Block& blk) {
-	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
+	ASSERT(blk != nullblock, "Cannot simply deallocate an uninitialized memory block");
     *(reinterpret_cast<void**>(blk.ptr)) = reinterpret_cast<void*>(free_list);
     free_list = reinterpret_cast<void**>(blk.ptr);
 
-    blk = {nullptr, 0, 0};
+    blk = nullblock;
 }
 
 template<size_t P, size_t B>
