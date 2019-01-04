@@ -16,7 +16,7 @@
 namespace Ant {
 namespace core {
 
-inline void* __assertion_failed(const char* ex, const char* msg, const char* file, unsigned int line) {
+void* __assertion_failed(const char* ex, const char* msg, const char* file, unsigned int line) {
 	#ifdef ANT_PLATFORM_UNIX
 	const char target = '/';
 	#elif
@@ -41,7 +41,7 @@ inline void* __assertion_failed(const char* ex, const char* msg, const char* fil
 }
 
 template<typename ...Args>
-inline void* __assertion_failed_formated(const char* ex, const char* format_string, const char* file, unsigned int line, Args ...args) {
+void* __assertion_failed_formated(const char* ex, const char* format_string, const char* file, unsigned int line, Args ...args) {
 	char buffer[256];
 
 	#ifdef ANT_COMPILER_GCC
