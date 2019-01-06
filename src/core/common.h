@@ -6,6 +6,13 @@
 #include <cstdio>
 #include <cstring> // maybe unused
 
+#ifdef ANT_PLATFORM_UNIX
+#include <unistd.h>
+#include <cerrno>
+#elif ANT_PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
 // GLEW & GLFW
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

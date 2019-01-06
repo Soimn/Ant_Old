@@ -10,3 +10,4 @@ target_sources(${TARGET}
 include("${CMAKE_CURRENT_LIST_DIR}/utility/${CML}")
 include("${CMAKE_CURRENT_LIST_DIR}/memory/${CML}")
 include("${CMAKE_CURRENT_LIST_DIR}/debug/${CML}")
+include("${CMAKE_CURRENT_LIST_DIR}/platform/${CML}")

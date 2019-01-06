@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/common.h"
-#include "core/debug/assert.h"
+#include "core/debug.h"
 #include "core/utility/utility.h"
 #include "core/utility/cstring_utility.h"
 
@@ -262,7 +262,7 @@ namespace {
 }
 
 template<typename T>
-inline auto __to_string_integral_impl (T item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+auto __to_string_integral_impl (T item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	if (is_same<T, bool>::value)
 		return fixed_array_string<MAX_TO_STRING_LENGTH>(static_cast<bool>(item) ? "true" : "false");
 	else if constexpr (is_unsigned<T>::value)
@@ -272,15 +272,20 @@ inline auto __to_string_integral_impl (T item) -> fixed_array_string<MAX_TO_STRI
 }
 
 template<typename T>
-inline auto to_string (const T& item) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+auto to_string (const T& item)
+	-> enable_if_t<__not_<is_same<T, const char*>>::value, fixed_array_string<MAX_TO_STRING_LENGTH>> {
 	if constexpr (is_integral<T>::value)
 		return __to_string_integral_impl(item);
-	else if (is_same<T, const char*>::value)
-		return fixed_array_string<MAX_TO_STRING_LENGTH>(item);
+	else
+		ASSERT(0, "Reached end of to_string");
+}
+
+inline auto to_string (const char* fstr) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+	return fixed_array_string<MAX_TO_STRING_LENGTH>(fstr);
 }
 
 template<int N, typename Tag>
-inline auto to_string (const fixed_string<N, Tag>& fstr) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
+auto to_string (const fixed_string<N, Tag>& fstr) -> fixed_array_string<MAX_TO_STRING_LENGTH> {
 	return fixed_array_string<N>(fstr);
 }
 
