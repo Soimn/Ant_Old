@@ -16,10 +16,10 @@ Block Segregator<t, S, L>::allocate (size_t size, byte alignment) {
 	if (size <= t)
 		blk = S::allocate(size, alignment);
 
-	if (blk == nullblock_t)
+	if (blk == nullblock)
 		blk = L::allocate(size, alignment);
 
-// 	if (blk == nullblock_t)
+// 	if (blk == nullblock)
 // 		LOGF("Failed to allocate memory");	
 
 	return blk;
@@ -27,7 +27,7 @@ Block Segregator<t, S, L>::allocate (size_t size, byte alignment) {
 
 template<size_t t, typename S, typename L>
 void Segregator<t, S, L>::deallocate (Block& blk) {
-	ASSERT(blk != nullblock_t, "Cannot simply deallocate an uninitialized memory block");
+	ASSERT(blk != nullblock, "Cannot simply deallocate an uninitialized memory block");
 
 	if (blk.size <= t && S::owns(blk))
 		S::deallocate(blk);

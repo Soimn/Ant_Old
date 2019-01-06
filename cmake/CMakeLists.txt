@@ -45,7 +45,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		message(FATAL_ERROR "Unsuported version of gcc. Minimum required: 8.1.0")
 	endif()
 	
-	target_compile_definitions(${TARGET} PUBLIC ANT_COMPILER_GNU)
+	target_compile_definitions(${TARGET} PUBLIC ANT_COMPILER_GCC)
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -82,12 +82,10 @@ elseif(UNIX AND NOT CYGWIN)
 	)
 
 else()
-	message(FATAL_ERROR "Platform or compiler not supported, currently supported platforms are: Windows, Linux, Mac OS, with compilers: GNU, CLANG, MSVC")
+	message(FATAL_ERROR "Platform or compiler not supported, currently supported platforms are: Windows, Linux, Mac OS, with compilers: GCC, CLANG, MSVC")
 endif()
 
 # EXTERNAL LIBS
-target_link_libraries(${TARGET} LINK_PRIVATE EASTL)
-
 find_package(GLEW REQUIRED)
 if (GLEW_FOUND)
 	target_include_directories(${TARGET} PRIVATE ${GLEW_INCLUDE_DIRS})

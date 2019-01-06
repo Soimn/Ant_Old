@@ -76,8 +76,16 @@ namespace {
 	}
 }
 
+template<typename T, typename ...Args>
+void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int line, const T& item, Args ...args) = delete;
+
+template<typename T>
+void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int line, const T& item) {
+	Log(level, write_msg_header, file, line, to_string(item).get_data());
+}
+
 template<typename ...Args>
-inline void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int line, const char* format_string, Args ...args) {
+void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsigned int line, const char* format_string, Args ...args) {
 	FILE* stream = stdout;
 
 	/* NOTE(Soimn): a lock_guard is needed here to avoid a race condition. Alternatively push
@@ -116,7 +124,7 @@ inline void Log (LOGLEVEL level, bool write_msg_header, const char* file, unsign
 
 		CASSERT(pos != npos);
 
-		fprintf(stream, "%s @ %u ", file + pos + 1, line);
+		fprintf(stream, "%s @ %u: ", file + pos + 1, line);
 	}
 
 	__formated_log(stream, format_string, forward<Args>(args)...);

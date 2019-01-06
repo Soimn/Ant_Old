@@ -10,6 +10,8 @@ namespace core {
 
 template<typename T, typename = _Require<__is_referenceable<T>, __not_<is_array<T>>>>
 struct unique_ptr {
+	typedef memory::Block Block;
+
 	private:
 		Block m_block;
 
@@ -17,7 +19,7 @@ struct unique_ptr {
 		using pointer = T*;
 		using element_type = T;
 		
-		constexpr unique_ptr() : m_block(nullblock) {}
+		constexpr unique_ptr() : m_block(memory::nullblock) {}
 		explicit unique_ptr(Block blk) : m_block(blk) {}
 
 		unique_ptr(unique_ptr<T>&& other) : m_block(other.release()) {}
@@ -32,14 +34,14 @@ struct unique_ptr {
 
 		Block release() {
 			Block blk = this->m_block;
-			this->m_block = nullblock;
+			this->m_block = memory::nullblock;
 			return blk;
 		}
 
-		void reset(Block blk = nullblock) {
+		void reset(Block blk = memory::nullblock) {
 			m_block.swap(blk);
-			if (blk != nullblock) {
-				ant_delete<T>(blk);
+			if (blk != memory::nullblock) {
+				memory::ant_delete<T>(blk);
 			}
 		}
 
@@ -162,7 +164,7 @@ namespace {
 
 template<typename T, typename ...Args>
 inline typename __MakeUniq<T>::__single_object make_unique (Args&& ...args) {
-	return unique_ptr<T>(ant_new<T>(forward<Args>(args)...));
+	return unique_ptr<T>(memory::ant_new<T>(forward<Args>(args)...));
 }
 
 template<typename T, typename ...Args>
